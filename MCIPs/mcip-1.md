@@ -165,7 +165,7 @@ This is totally compatible with the ERC721 standard.
 
 ## Implementations
 
-EverDragons2 -- a practical implementation
+[EverDragons2](https://github.com/ndujaLabs/everdragons2-core) -- a practical implementation
 
 ## Copyright
 
