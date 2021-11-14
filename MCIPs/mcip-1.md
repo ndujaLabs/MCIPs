@@ -80,7 +80,7 @@ interface IMCIP1 {
     // list of attributes
     uint8[30] attributes;
     // Unnecessary fields can be set to zero.
-    // If, for example, a field requires more than 256 possible value, two bytes can be used for it.
+    // If, for example, a field requires more than 30 possible attributes, two bytes can be used for it.
   }
 
   /// @dev It returns the on-chain metadata of a specific token
