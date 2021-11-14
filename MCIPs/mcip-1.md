@@ -132,7 +132,7 @@ interface IMCIP1 {
 
 The reason why ERC721 metadata are off-chain makes perfect sense in general, in particular for collectibles, but it does not allow pure on-chain games to interact with the NFT because they cannot access the metadata. This proposal adds a relatively inexpensive solution to it. The limit is that you can have at most 30 attributes. If an NFT has more than 30 different traits, the version can help because it can refer to different subgroups of attributes.
 
-## Backwards Compatibility~~~~
+## Backwards Compatibility
 
 This is totally compatible with the ERC721 standard.
 
