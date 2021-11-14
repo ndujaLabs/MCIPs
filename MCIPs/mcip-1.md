@@ -185,10 +185,6 @@ contract ERC721WithMCIP1 is IMCIP1, ERC721, ERC721Enumerable, Ownable {
     super._beforeTokenTransfer(_from, _to, _tokenId);
   }
 
-  function getInterfaceId() external view returns (bytes4) {
-    return type(IMCIP1).interfaceId;
-  }
-
   function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
     return interfaceId == type(IMCIP1).interfaceId || super.supportsInterface(interfaceId);
   }
