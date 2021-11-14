@@ -48,8 +48,8 @@ pragma solidity ^0.8.0;
 /// @title IMCIP-1 On chain metadata
 ///  Version: 0.0.2
 ///  Note: the ERC-165 identifier for this interface is 0x0e32e192.
-/* is ERC165 */
-interface IMCIP1 {
+interface IMCIP1 /* is ERC165 */ {
+
   /// @dev This emits when the metadata for a token id are set.
   event MetadataSet(uint256 _tokenId, Metadata _metadata);
 
