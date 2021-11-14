@@ -7,6 +7,7 @@ status: Draft
 created: 2021-11-11
 requires: 165
 ---
+Discussion at https://github.com/ndujaLabs/MCIPs/issues/3
 
 ## Simple Summary
 
