@@ -8,7 +8,7 @@ This repo is for the rest of us. Is a place where you can propose an improvement
 
 ## Proposals
 
--- none for now
+[MCIP-1 On chain NFT metadata](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-1.md)
 
 ## Credits
 All the docs and the issues are MIT licensed.
