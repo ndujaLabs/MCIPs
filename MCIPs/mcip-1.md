@@ -139,7 +139,7 @@ This is totally compatible with the ERC721 standard.
 
 ## Implementations
 
-[EverDragons2 MCIP1](https://github.com/ndujaLabs/everdragons2-core/blob/main/contracts/MCIP1.sol)
+[EverDragons2 ERC721WithMCIP1](https://github.com/ndujaLabs/everdragons2-core/blob/main/contracts/ERC721WithMCIP1.sol)
 
 ```solidity
 // SPDX-License-Identifier: MIT
