@@ -45,7 +45,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 pragma solidity ^0.8.0;
 
 /// @title IMCIP-1 On chain metadata
-///  Note: the ERC-165 identifier for this interface is 0x4b291b8f.
+///  Version: 0.0.2
+///  Note: the ERC-165 identifier for this interface is 0x0e32e192.
 /* is ERC165 */
 interface IMCIP1 {
   /// @dev This emits when the metadata for a token id are set.
@@ -86,114 +87,32 @@ interface IMCIP1 {
   /// @param _tokenId The id of the token for whom to query the on-chain metadata
   /// @return The metadata of the token
   function metadataOf(uint256 _tokenId) external view returns (Metadata memory);
-}
-```
-
-## Rationale
-
-The reason why ERC721 metadata are off-chain makes perfect sense in general, in particular for collectibles, but it does not allow pure on-chain games to interact with the NFT because they cannot access the metadata. This proposal adds a relatively inexpensive solution to it. The limit is that you can have at most 30 attributes. If an NFT has more than 30 different traits, the version can help because it can refer to different subgroups of attributes.
-
-## Backwards Compatibility
-
-This is totally compatible with the ERC721 standard.
-
-## Implementations
-
-[EverDragons2 MCIP1](https://github.com/ndujaLabs/everdragons2-core/blob/main/contracts/MCIP1.sol)
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "./IMCIP1.sol";
-
-contract MCIP1 is IMCIP1 {
-  mapping(uint256 => Metadata) internal _metadata;
-  mapping(uint8 => uint256) internal _firstMutables;
-  mapping(uint8 => uint256) internal _latestAttributeIndexes;
-
-  // for version 1 of the MCIP-1, it must be 2
-  uint256 internal _maxStatusShiftPosition = 2;
-
-  /// @notice Retrieve the index of the first mutable attribute
-  /// @dev By convention, the attributes array first elements are immutable, followed
-  /// by mutable attributes. To know which one are mutable, all we need is the index
-  /// of the first mutable attribute
-  /// @param _tokenId The id of the token for whom to query the first mutable attribute
-  /// @return The index
-  function firstMutable(uint256 _tokenId) public view returns (uint256) {
-    return _firstMutables[_metadata[_tokenId].version];
-  }
-
-  /// @notice Returns the index of the last supported attributes
-  /// @dev An NFT can have a variable number of attributes or a fixed one.
-  /// It returns the index of the last accepted attribute index. For example,
-  /// if an NFT has 16 immutable traits, and 5 mutable one and no other can be added,
-  /// it should return 16 + 5 - 1 => 20
-  /// If there is no limit, if should return 29
-  /// @param _tokenId The id of the token for whom to query the first mutable attribute
-  /// @return The index
-  function latestAttributeIndex(uint256 _tokenId) public view returns (uint256) {
-    return _latestAttributeIndexes[_metadata[_tokenId].version];
-  }
 
   /// @notice Retrieve the mutability of an attribute based on its index
-  /// @dev It returns a boolean. Mutable: true, immutable: false. It should use
-  /// firstMutable to get the value
+  /// @dev It returns a boolean. Mutable: true, immutable: false.
   /// @param _tokenId The id of the token
   /// @param _attributeIndex The index of the attribute for whom to query the mutability
   /// @return The mutability
-  function isMutable(uint256 _tokenId, uint256 _attributeIndex) public view returns (bool) {
-    return firstMutable(_tokenId) <= _attributeIndex;
-  }
-
-  function metadataOf(uint256 _tokenId) public view override returns (Metadata memory) {
-    return _metadata[_tokenId];
-  }
-
-  /// @notice Sets the initial attributes of a token
-  /// @dev Throws if the already set
-  /// For example, an NFT can have a factory contract who manages minting and changes. In
-  /// that case, only the factory contract should be allowed to execute the function.
-  /// At first execution if should allow to set mutable and immutable attributes up.
-  /// At further calls, it must revert if trying to change an immutable attribute.
-  /// @param _tokenId The id of the token for whom to change the attributes
-  /// @param _version The version. It must revert if a not supported version
-  /// @param _initialStatus The initial value of the status.
-  /// @param _initialAttributes The array of the initial attributes
-  /// @return true if the change is successful
-  function initUpdateAttributes(
-    uint256 _tokenId,
-    uint8 _version,
-    uint8 _initialStatus,
-    uint8[30] memory _initialAttributes
-  ) public returns (bool) {
-    require(_firstMutables[_version] != 0, "version not supported");
-    _metadata[_tokenId] = Metadata(_version, _initialStatus, _initialAttributes);
-    return true;
-  }
+  function isAttributeMutable(uint256 _tokenId, uint8 _attributeIndex) external view returns (bool);
 
   /// @notice Sets the attributes of a token after first set up
   /// @dev Throws if the sender is not an operator authorized in the contract.
+  /// Specifically, the sender must be a platform approved buy the NFT contract owner 
+  /// like, for example, a compatible game. Also, the token owner must approve the
+  /// operator to spend their tokens (same function used in ERC721 for approvals). 
   /// @param _tokenId The id of the token for whom to change the attributes
-  /// @param _index The index of the attribute to be changed
-  /// @param _value The value of the attribute to be changed
+  /// @param _indexes The indexes of the attributes to be changed
+  /// @param _values The values of the attributes to be changed
   /// @return true if the change is successful
-  function updateAttribute(
+  function updateAttributes(
     uint256 _tokenId,
-    uint256 _index,
-    uint8 _value
-  ) public returns (bool) {
-    if (isMutable(_tokenId, _index)) {
-      _metadata[_tokenId].attributes[_index] = _value;
-      return true;
-    }
-    return false;
-  }
+    uint8[] memory _indexes,
+    uint8[] memory _values
+  ) external returns (bool);
 
   /// @notice Changes the status
   /// @dev Throws if the sender is not an operator authorized in the contract. See above.
+  /// Same like above for the approval.
   /// @param _tokenId The id of the token for whom to change the attributes
   /// @param _shiftPosition The number of position to be left shifted
   /// For example, to change the transferability of token #12
@@ -205,8 +124,131 @@ contract MCIP1 is IMCIP1 {
     uint256 _tokenId,
     uint256 _shiftPosition,
     bool _newValue
-  ) public returns (bool) {
-    require(_shiftPosition <= _maxStatusShiftPosition, "status bit out of range");
+  ) external returns (bool);
+}
+```
+
+## Rationale
+
+The reason why ERC721 metadata are off-chain makes perfect sense in general, in particular for collectibles, but it does not allow pure on-chain games to interact with the NFT because they cannot access the metadata. This proposal adds a relatively inexpensive solution to it. The limit is that you can have at most 30 attributes. If an NFT has more than 30 different traits, the version can help because it can refer to different subgroups of attributes.
+
+## Backwards Compatibility~~~~
+
+This is totally compatible with the ERC721 standard.
+
+## Implementations
+
+[EverDragons2 MCIP1](https://github.com/ndujaLabs/everdragons2-core/blob/main/contracts/MCIP1.sol)
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IMCIP1.sol";
+
+contract ERC721WithMCIP1 is IMCIP1, ERC721, ERC721Enumerable, Ownable {
+  event PlatformApproved(address platform);
+
+  mapping(uint256 => Metadata) internal _metadata;
+
+  uint8 internal _firstMutable;
+  uint8 internal _lastMutable;
+
+  mapping(address => bool) internal _platforms;
+
+  // for version 1 of the MCIP-1, it must be 2
+  uint256 public constant MAX_STATUS_SHIFT_POSITION = 2;
+
+  modifier onlyApprovedPlatform(uint256 _tokenId) {
+    require(_platforms[_msgSender()], "not an approved platform");
+    require(_exists(_tokenId), "operator query for nonexistent token");
+    address owner = ERC721.ownerOf(_tokenId);
+    require(getApproved(_tokenId) == _msgSender() || isApprovedForAll(owner, _msgSender()), "spender not approved");
+    _;
+  }
+
+  constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+
+  function _beforeTokenTransfer(
+    address _from,
+    address _to,
+    uint256 _tokenId
+  ) internal override(ERC721, ERC721Enumerable) {
+    if (_exists(_tokenId)) {
+      require(_metadata[_tokenId].status & (1 << 1) == 1 << 1, "token not transferable");
+      require(_to != address(0) || _metadata[_tokenId].status & (1 << 2) == 1 << 2, "token not burnable");
+    }
+    // else minting a new token
+    super._beforeTokenTransfer(_from, _to, _tokenId);
+  }
+
+  function getInterfaceId() external view returns (bytes4) {
+    return type(IMCIP1).interfaceId;
+  }
+
+  function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+    return interfaceId == type(IMCIP1).interfaceId || super.supportsInterface(interfaceId);
+  }
+
+  // approve a new game to manage the NFT's mutable attributes
+  function approvePlatform(address _platform) external onlyOwner {
+    require(_platform != address(0), "address 0x0 not allowed");
+    _platforms[_platform] = true;
+    emit PlatformApproved(_platform);
+  }
+
+  // return the index of first mutable attribute
+  function firstMutable() public view returns (uint8) {
+    return _firstMutable;
+  }
+
+  // return the index of last mutable attribute
+  function lastMutable() public view returns (uint8) {
+    return _lastMutable;
+  }
+
+  function metadataOf(uint256 _tokenId) public view override returns (Metadata memory) {
+    return _metadata[_tokenId];
+  }
+
+  // solhint-disable-next-line
+  function isAttributeMutable(uint256 _tokenId, uint8 _attributeIndex) public view override returns (bool) {
+    return _firstMutable <= _attributeIndex;
+  }
+
+  function _initMetadata(
+    uint256 _tokenId,
+    uint8 _version,
+    uint8 _initialStatus,
+    uint8[30] memory _initialAttributes
+  ) internal returns (bool) {
+    require(_version == 1, "version not supported");
+    _metadata[_tokenId] = Metadata(_version, _initialStatus, _initialAttributes);
+    return true;
+  }
+
+  function updateAttributes(
+    uint256 _tokenId,
+    uint8[] memory _indexes,
+    uint8[] memory _values
+  ) public override onlyApprovedPlatform(_tokenId) returns (bool) {
+    require(_indexes.length == _values.length, "inconsistent lengths");
+    for (uint256 i = 0; i < _indexes.length; i++) {
+      require(isAttributeMutable(_tokenId, _indexes[i]), "immutable attributes can not be updated");
+      _metadata[_tokenId].attributes[_indexes[i]] = _values[i];
+    }
+    return true;
+  }
+
+  function updateStatus(
+    uint256 _tokenId,
+    uint256 _shiftPosition,
+    bool _newValue
+  ) public override onlyApprovedPlatform(_tokenId) returns (bool) {
+    require(_shiftPosition <= MAX_STATUS_SHIFT_POSITION, "status bit out of range");
     uint256 newValue;
     if (_newValue) {
       newValue = (1 << _shiftPosition) | _metadata[_tokenId].status;
@@ -217,6 +259,7 @@ contract MCIP1 is IMCIP1 {
     return true;
   }
 }
+
 ```
 
 ## Copyright
