@@ -8,13 +8,13 @@ created: 2021-11-15
 requires: ERC165
 ---
 
-# Cross-game NFT
+# Cross-game NFT metadata
 
 Discussion at https://github.com/ndujaLabs/MCIPs/issues/3
 
 ## Simple Summary
 
-A standard protocol for NFT on-chain metadata
+A standard protocol for Cross-game on-chain NFT metadata
 
 ## Abstract
 
