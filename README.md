@@ -8,7 +8,7 @@ This repo is for the rest of us. Is a place where you can propose an improvement
 
 ## Proposals
 
-[MCIP-1 On chain NFT metadata](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-1.md)
+[MCIP-1 Cross-Game on-chain NFT metadata](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-1.md)
 
 [MCIP-2 NFT cross-chain contract addresses](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-2.md)
 
