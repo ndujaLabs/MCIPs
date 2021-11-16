@@ -2,10 +2,10 @@
 MCIP: 1
 title: NFT on-chain metadata
 author: Francesco Sullo <francesco@sullo.co>
-type: Standards Track
+version: 0.0.3
 status: Draft
-created: 2021-11-11
-requires: 165
+created: 2021-11-15
+requires: ERC165
 ---
 
 # Cross-game NFT
