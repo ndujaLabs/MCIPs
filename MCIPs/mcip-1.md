@@ -116,7 +116,7 @@ interface IMCIP1 /* is ERC165 */{
   ) external returns (bool);
 
   /// @notice Changes the status
-  /// @dev Acts on the metadata related to the specific game's contract.
+  /// @dev Modifies a specific property in the status
   /// @param _tokenId The id of the token for whom to change the attributes
   /// @param _position The position of the property starting from the right
   /// For example, to burn token #12 in a specific game
