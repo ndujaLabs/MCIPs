@@ -139,6 +139,10 @@ interface IMCIP1 /* is ERC165 */{
 
 The reason why ERC721 metadata are off-chain makes perfect sense in general, in particular for collectibles, but it does not allow pure on-chain games to interact with the NFT because they cannot access the metadata. This proposal adds a relatively inexpensive solution to it. The limit is that you can have at most 30 attributes managed by any approved game.
 
+## Recommendation
+
+The on-chain Metadata must be used only for important informations, like, for example, level ups. If not, too many changes would potentially kill the blockchain.
+
 ## Backwards Compatibility
 
 This is totally compatible with the ERC721 standard.
