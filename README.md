@@ -12,7 +12,7 @@ This repo is for the rest of us. Is a place where you can propose an improvement
 
 [MCIP-2 NFT cross-chain contract addresses](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-2.md)
 
-[MCIP-2 NFT stakeable w/out losing ownership](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-3.md)
+[MCIP-3 NFT stakeable w/out losing ownership](https://github.com/ndujaLabs/MCIPs/blob/main/MCIPs/mcip-3.md)
 
 ## Credits
 All the docs and the issues are MIT licensed.
